@@ -1,11 +1,33 @@
+import React, { useState } from "react";
+import { Input, Form, Card, Modal } from "antd";
 import { useWeb3React } from '@web3-react/core'
 import { InjectedConnector } from '@web3-react/injected-connector'
-import { ethers } from 'ethers'
+import { ethers } from 'ethers';
+
+
+const styles = {
+  card: {
+    boxShadow: "0 0.5rem 1.2rem rgb(189 197 209 / 20%)",
+    border: "1px solid #e7eaf3",
+    borderRadius: "1rem",
+    fontSize: "16px",
+    fontWeight: "500",
+    width: "600px",
+    marginTop: "50px",
+    marginLeft: "500px",
+    padding: "20px"
+  }
+};
+
+
 const ContentComponent = () => {
-  const { activate, deactivate, library, account } = useWeb3React()
+  const { activate, deactivate, library, account } = useWeb3React();
   const injected = new InjectedConnector({
     supportedChainIds: [1, 3, 4, 5, 42,80001],
-  })
+  });
+  const[username, setUsername] = useState();
+  const[email, setEmail] = useState();
+  const [file, setFile] = useState("");
 
   const onConnectClicked = async () => {
     try {
@@ -71,39 +93,74 @@ const ContentComponent = () => {
     ).signMessage(arrayifyMessage)
     console.log(flatSignature)
   }
-  return (
-    <div className="flex flex-col items-center pt-10 space-y-3">
-      <div className="flex flex-row space-x-3">
-        <button
-          onClick={onConnectClicked}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Connect Wallet
-        </button>
-        <button
-          onClick={onDisconnectClicked}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Disconnect Wallet
-        </button>
-      </div>
-      <div>Account: {account || 'NOT CONNECTED'}</div>
-      <div className="flex flex-row space-x-3">
-        <button
-          onClick={onMetamaskSignClicked}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Sign with metamask
-        </button>
 
-        <button
-          onClick={onPrivateKeySignClicked}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Sign with private key
-        </button>
-      </div>
-    </div>
+  const handleChange = (e) => {
+    setFile(URL.createObjectURL(e.target.files[0]));
+    successUpload(file);
+  }
+
+
+  const successUpload = () => {
+    let secondsToGo = 7;
+    const modal = Modal.success({
+      title: "Success!",
+      content: `Image Uploaded sucessfully`,
+    });
+    setTimeout(() => {
+      modal.destroy();
+    }, secondsToGo * 1000);
+  }
+
+  return (
+    <>
+      <Card style={styles.card}>
+        <Form.Item name="username" label="Username" rules={[{ required: true }]}>
+          <Input type="text" id="username" placeholder="Username" value={username} onChange={e=> setUsername(e.target.value)} />
+        </Form.Item>
+
+        <Form.Item name="email" label="Email" rules={[{ required: true }]}>
+          <Input type="text" id="email" placeholder="Email" value={email} onChange={e=> setEmail(e.target.value)} />
+        </Form.Item>
+
+        <Form.Item name="File Upload" label="File Upload" rules={[{ required: true }]}>
+          <input type="file" id="file" onChange={handleChange} />
+          <label for="file" id="uploadBtn"></label>
+        </Form.Item>
+
+        <div className="flex flex-col items-center pt-10 space-y-3">
+        <div className="flex flex-row space-x-3">
+          <button
+            onClick={onConnectClicked}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Connect Wallet
+          </button>
+          <button
+            onClick={onDisconnectClicked}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Disconnect Wallet
+          </button>
+        </div>
+        <div>Account: {account || 'NOT CONNECTED'}</div>
+        <div className="flex flex-row space-x-3">
+          <button
+            onClick={onMetamaskSignClicked}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Sign with metamask
+          </button>
+
+          <button
+            onClick={onPrivateKeySignClicked}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Sign with private key
+          </button>
+        </div>
+        </div>
+      </Card>
+    </>
   )
 }
 export default ContentComponent
